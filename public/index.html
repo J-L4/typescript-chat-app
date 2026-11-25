@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TypeScript Chat App</title>
+  <link
+    rel="stylesheet"
+    href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+  />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    body {
+      margin-top: 30px;
+    }
+    #chat {
+      max-height: 350px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h3>Chat App</h3>
+        <div id="chat" class="well"></div>
+        <form id="messageForm">
+          <div class="form-group">
+            <label for="message">Enter Message</label>
+            <textarea
+              class="form-control"
+              id="message"
+              rows="3"
+              placeholder="Type your message here..."
+            ></textarea>
+          </div>
+          <input
+            type="submit"
+            class="btn btn-primary"
+            value="Send Message"
+          />
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    $(function () {
+      var socket = io.connect();
+      var $messageForm = $("#messageForm");
+      var $message = $("#message");
+      var $chat = $("#chat");
+
+      $messageForm.submit(function (e) {
+        e.preventDefault();
+        var text = String($message.val() || "").trim();
+        if (!text) return;
+
+        socket.emit("send message", text);
+        $message.val("");
+      });
+
+      socket.on("new message", function (data) {
+        $chat.append(
+          '<div class="well"><strong>' +
+            data.msg +
+            '</strong> <small class="text-muted">(' +
+            data.timestamp +
+            ")</small></div>"
+        );
+      });
+    });
+  </script>
+</body>
+</html>
